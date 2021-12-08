@@ -4,6 +4,12 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace DiscountCodeAPI.Data
 {
+
+    public enum DiscountState {
+        Provisioned,
+        Used
+    }
+
     public interface IDiscount
     {
         public float GetResultSum(float sum);
@@ -12,27 +18,23 @@ namespace DiscountCodeAPI.Data
 
     public class Discount
     {
-        public string DiscountType { get; set; }
-        public long validFrom { get; set; }
-        public long validTo { get; set; }
-        public long DiscountCode { get; set; }
+        //public string DiscountType { get; set; }
+        public DateTime ValidFrom { get; set; }
+        public DateTime ValidTo { get; set; }
+        public string DiscountCode { get; set; }
         public string BeneficiaryId { get; set; }
+        public DiscountState State { get; set; }
     }
 
-    public class FixedAmountDiscountTemplate
-    {
-        public string DiscountType { get; set; }
-        public long FixedAmount { get; set; }
-        public long ValidDays { get; set; }
-    }
+    
 
     [BsonDiscriminator("FixedAmountDiscount")]
     public class FixedAmountDiscount : Discount, IDiscount
     {
         public FixedAmountDiscount() { FixedAmount = 0; }
-        public FixedAmountDiscount(long amount) { FixedAmount = amount; }
         
-        public long FixedAmount { get; set; }
+        
+        public float FixedAmount { get; set; }
         public float GetResultSum(float sum)
         {
             float discountedSum = sum - FixedAmount;
@@ -42,21 +44,19 @@ namespace DiscountCodeAPI.Data
         {
             return FixedAmount;
         }
-
-
     }
 
-    public class RelativeAmountDiscount : IDiscount
+    public class RelativeAmountDiscount : Discount, IDiscount
     {
-        public RelativeAmountDiscount(long factor) { relativeFactor = factor; }
-        public long relativeFactor { get; set; }
+        public RelativeAmountDiscount() {}
+        public float Factor { get; set; }
         public float GetResultSum(float sum)
         {
-            return 0;
+            return (1-Factor)*sum;
         }
         public float GetDiscountAmount(float sum)
         {
-            return 0;
+            return Factor*sum;
         }
     }
 }

@@ -47,9 +47,9 @@ namespace DiscountCodeAPI.Controllers
 
         [HttpGet]
         [Route("api/discount/generate")]
-        public IDiscount GenerateDiscount( [FromQuery] string campaignCode, string beneficiaryId)
+        public Discount GenerateDiscount( [FromQuery] string campaignCode, [FromQuery] string beneficiaryId)
         {
-            IDiscount discount =_discountService.ProvisionDiscount(campaignCode, beneficiaryId);
+            Discount discount =_discountService.ProvisionDiscount(campaignCode, beneficiaryId);
             return discount;
         }
 
@@ -57,8 +57,9 @@ namespace DiscountCodeAPI.Controllers
         [Route("api/discount/apply")]
         public string ApplyDiscount(float sum, string discountCode, string beneficiaryId)
         {
-            IDiscount discount = _discountService.GetDiscount(discountCode,beneficiaryId);
-            float newSum = discount.GetResultSum(sum);
+            Discount discount = _discountService.GetDiscount(discountCode,beneficiaryId);
+
+            float newSum = ((IDiscount) discount).GetResultSum(sum);
             //_discountService.DisableDiscount(discount);
             return "Ok";
         }

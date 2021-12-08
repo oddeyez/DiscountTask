@@ -8,9 +8,9 @@ namespace DiscountCodeAPI.Services
         bool CreateCampaign(DiscountCampaign campaign);
         DiscountCampaign GetDiscountCampaign(string campaignCode);
 
-        IDiscount ProvisionDiscount(string campaignCode, string beneficiaryId);
-        IDiscount GetDiscount(string discountCode, string beneficiaryId);
+        Discount ProvisionDiscount(string campaignCode, string beneficiaryId);
+        Discount GetDiscount(string discountCode, string beneficiaryId);
 
-        bool ApplyDiscount(string discountCode, string beneficiaryId);
+        float ApplyDiscount(string discountCode, string beneficiaryId);
     }
 }

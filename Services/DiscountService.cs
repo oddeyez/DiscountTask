@@ -11,33 +11,44 @@ namespace DiscountCodeAPI.Services
     {
         public static DiscountCampaign CreateDiscountCampaign(JsonElement s)
         {
-            var json = s.GetRawText();
-            DiscountCampaign c = JsonSerializer.Deserialize<DiscountCampaign>(json);
-          
             if (s.GetProperty("DiscountType").GetString() == "FixedAmount")
             {
-                var subElement = s.GetProperty("DiscountTemplate");
-                json = subElement.GetRawText();
-                c.DiscountTemplate = JsonSerializer.Deserialize<FixedAmountDiscount>(json);
+                var json = s.GetRawText();
+                DiscountCampaign c = JsonSerializer.Deserialize<FixedAmountDiscountCampaign>(json);
+                return c;
             }
-
-            return c;
+            else if (s.GetProperty("DiscountType").GetString() == "RelativeAmount")
+            {
+                var json = s.GetRawText();
+                DiscountCampaign c = JsonSerializer.Deserialize<RelativeAmountDiscountCampaign>(json);
+                return c;
+            }
+            return null;
         }
+
+       
+
+        
     }
 
     public class DiscountService : IDiscountService
     {
         IMongoDBContext _dbContext;
+        ICodeGenerator _codeGenerator;
+        INotificationService _notificationService;
 
         private readonly IMongoCollection<DiscountCampaign> _discountCampaigns;
 
-        public DiscountService(IMongoDBContext dbContext)
+        public DiscountService(IMongoDBContext dbContext, ICodeGenerator codeGenerator, INotificationService notificationService)
         {
             _dbContext = dbContext;
+            _codeGenerator = codeGenerator;
+            _notificationService = notificationService;
         }
 
         public bool CreateCampaign(DiscountCampaign campaign)
         {
+            // Todo: Check that campaign doesn't already exist before storing
             _dbContext.CreateAsync("Campaigns", campaign);
             return true;
         }
@@ -48,22 +59,66 @@ namespace DiscountCodeAPI.Services
             return campaign.Result;
         }
 
-        public IDiscount ProvisionDiscount(string campaignCode, string beneficiaryId)
+        public Discount ProvisionDiscount(string campaignCode, string beneficiaryId)
         {
             DiscountCampaign campaign = GetDiscountCampaign(campaignCode);
-            return campaign.DiscountTemplate;
+            Discount d = CreateDiscountFromCampaign(campaign);
+            d.BeneficiaryId = beneficiaryId;
+            _dbContext.CreateAsync("DiscountCodes", d);
+
+            // Todo: Reduce campaign items by one
+
+            return d;
+
         }
 
-        public IDiscount GetDiscount(string discountCode, string beneficiaryId)
+        public Discount GetDiscount(string discountCode, string beneficiaryId)
         {
             throw new NotImplementedException();
         }
 
         
 
-        public bool ApplyDiscount(string discountCode, string beneficiaryId)
+        public float ApplyDiscount(string discountCode, string beneficiaryId)
         {
+            // Get Discount Object and calculate new sum
+            // Set Discount State to "Used"
+            // Return new sum
             throw new NotImplementedException();
+        }
+
+        public Discount CreateDiscountFromCampaign(DiscountCampaign campaign)
+        {
+            if (campaign.DiscountType == "FixedAmount")
+            {
+                FixedAmountDiscountCampaign f = (FixedAmountDiscountCampaign)campaign;
+                FixedAmountDiscount d = new FixedAmountDiscount()
+                {
+                    FixedAmount = f.FixedAmount,
+                    //DiscountType = f.DiscountType,
+                    ValidFrom = DateTime.Now,
+                    ValidTo = DateTime.Now.AddDays(f.DiscountPeriod),
+                    DiscountCode = _codeGenerator.GenerateCode()
+                };
+
+                return d;
+            }
+            else if (campaign.DiscountType == "RelativeAmount")
+            {
+                RelativeAmountDiscountCampaign f = (RelativeAmountDiscountCampaign)campaign;
+                RelativeAmountDiscount d = new RelativeAmountDiscount()
+                {
+                    Factor = f.Factor,
+                    //DiscountType = f.DiscountType,
+                    ValidFrom = DateTime.Now,
+                    ValidTo = DateTime.Now.AddDays(f.DiscountPeriod),
+                    DiscountCode = _codeGenerator.GenerateCode()
+                };
+
+                return d;
+            }
+            return null;
+
         }
     }
 }

@@ -40,6 +40,8 @@ namespace DiscountCodeAPI
             });
             services.AddScoped<IMongoDBContext, MongoDBContext>();
             services.AddScoped<IDiscountService, DiscountService>();
+            services.AddScoped<ICodeGenerator, CodeGenerator>();
+            services.AddScoped<INotificationService, EmailNotificationService>();
 
             MongoDB.Bson.Serialization.BsonClassMap.RegisterClassMap<FixedAmountDiscount>();
         }
