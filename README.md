@@ -30,6 +30,13 @@ When a client application wants to award a user, for example. It calls the web s
 
 To provision a discount and obtain a discount code, a client application can send a HTTP Get Request to api/discount/generate?campaignCode=<campaign code>&beneficiaryId=<user reference>
     
-    
+
     
 ### WebService API
+
+    
+### Use case sequence
+![Use case](/docs/ComponentsDia.png)
+    
+### Components
+![Components](/docs/SequenceDia.png)
