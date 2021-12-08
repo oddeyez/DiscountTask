@@ -55,13 +55,14 @@ namespace DiscountCodeAPI.Controllers
 
         [HttpPost]
         [Route("api/discount/apply")]
-        public string ApplyDiscount(float sum, string discountCode, string beneficiaryId)
+        public float ApplyDiscount(float sum, string discountCode, string beneficiaryId)
         {
             Discount discount = _discountService.GetDiscount(discountCode,beneficiaryId);
 
+
             float newSum = ((IDiscount) discount).GetResultSum(sum);
             //_discountService.DisableDiscount(discount);
-            return "Ok";
+            return newSum;
         }
 
 

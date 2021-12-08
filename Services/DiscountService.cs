@@ -91,7 +91,9 @@ namespace DiscountCodeAPI.Services
             // Get Discount Object and calculate new sum
             // Set Discount State to "Used"
             // Return new sum
-            throw new NotImplementedException();
+            Discount discount = GetDiscount(discountCode, beneficiaryId);
+            float newSum = ((IDiscount)discount).GetResultSum(sum);
+            return newSum;
         }
 
         public Discount CreateDiscountFromCampaign(DiscountCampaign campaign)
@@ -112,17 +114,16 @@ namespace DiscountCodeAPI.Services
             }
             else if (campaign.DiscountType == "RelativeAmount")
             {
-                RelativeAmountDiscountCampaign f = (RelativeAmountDiscountCampaign)campaign;
-                RelativeAmountDiscount d = new RelativeAmountDiscount()
+                RelativeAmountDiscountCampaign relativeCampaign = (RelativeAmountDiscountCampaign)campaign;
+                RelativeAmountDiscount relativeDiscount = new RelativeAmountDiscount()
                 {
-                    Factor = f.Factor,
-                    //DiscountType = f.DiscountType,
+                    Factor = relativeCampaign.Factor,
                     ValidFrom = DateTime.Now,
-                    ValidTo = DateTime.Now.AddDays(f.DiscountPeriod),
+                    ValidTo = DateTime.Now.AddDays(relativeCampaign.DiscountPeriod),
                     DiscountCode = _codeGenerator.GenerateCode()
                 };
 
-                return d;
+                return relativeDiscount;
             }
             return null;
 

@@ -35,10 +35,10 @@ namespace DiscountCodeAPI
             services.AddControllers();
             services.Configure<DBSettings>(options =>
             {
-                options.Connection = Configuration.GetSection("TestDatabase:ConnectionString").Value;
-                options.DatabaseName = Configuration.GetSection("TestDatabase:DatabaseName").Value;
+                options.Connection = Configuration.GetSection("DiscountStore:ConnectionString").Value;
+                options.DatabaseName = Configuration.GetSection("DiscountStore:DatabaseName").Value;
             });
-            services.AddScoped<IMongoDBContext, MongoDBContext>();
+            services.AddScoped<IDiscountStore, DiscountStore>();
             services.AddScoped<IDiscountService, DiscountService>();
             services.AddScoped<ICodeGenerator, CodeGenerator>();
             services.AddScoped<INotificationService, EmailNotificationService>();
