@@ -11,6 +11,6 @@ namespace DiscountCodeAPI.Services
         Discount ProvisionDiscount(string campaignCode, string beneficiaryId);
         Discount GetDiscount(string discountCode, string beneficiaryId);
 
-        float ApplyDiscount(string discountCode, string beneficiaryId);
+        float ApplyDiscount(string discountCode, string beneficiaryId, float amount);
     }
 }

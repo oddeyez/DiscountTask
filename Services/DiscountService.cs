@@ -3,6 +3,7 @@ using DiscountCodeAPI.DataAccess;
 using DiscountCodeAPI.Data;
 using MongoDB.Driver;
 using System.Text.Json;
+using System.ComponentModel.DataAnnotations;
 
 namespace DiscountCodeAPI.Services
 {
@@ -15,13 +16,19 @@ namespace DiscountCodeAPI.Services
             {
                 var json = s.GetRawText();
                 DiscountCampaign c = JsonSerializer.Deserialize<FixedAmountDiscountCampaign>(json);
-                return c;
+                ValidationContext vc = new ValidationContext(c);
+                if (Validator.TryValidateObject(c, vc, null, true))
+                    return c;
+                return null;
             }
             else if (s.GetProperty("DiscountType").GetString() == "RelativeAmount")
             {
                 var json = s.GetRawText();
                 DiscountCampaign c = JsonSerializer.Deserialize<RelativeAmountDiscountCampaign>(json);
-                return c;
+                ValidationContext vc = new ValidationContext(c);
+                if (Validator.TryValidateObject(c, vc, null, true))
+                    return c;
+                return null;
             }
             return null;
         }
@@ -79,7 +86,7 @@ namespace DiscountCodeAPI.Services
 
         
 
-        public float ApplyDiscount(string discountCode, string beneficiaryId)
+        public float ApplyDiscount(string discountCode, string beneficiaryId, float sum)
         {
             // Get Discount Object and calculate new sum
             // Set Discount State to "Used"
