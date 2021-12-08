@@ -40,15 +40,15 @@ namespace DiscountCodeAPI.Services
 
     public class DiscountService : IDiscountService
     {
-        IMongoDBContext _dbContext;
+        IDiscountStore _discountStore;
         ICodeGenerator _codeGenerator;
         INotificationService _notificationService;
 
         private readonly IMongoCollection<DiscountCampaign> _discountCampaigns;
 
-        public DiscountService(IMongoDBContext dbContext, ICodeGenerator codeGenerator, INotificationService notificationService)
+        public DiscountService(IDiscountStore discountStore, ICodeGenerator codeGenerator, INotificationService notificationService)
         {
-            _dbContext = dbContext;
+            _discountStore = discountStore;
             _codeGenerator = codeGenerator;
             _notificationService = notificationService;
         }
@@ -56,13 +56,13 @@ namespace DiscountCodeAPI.Services
         public bool CreateCampaign(DiscountCampaign campaign)
         {
             // Todo: Check that campaign doesn't already exist before storing
-            _dbContext.CreateAsync("Campaigns", campaign);
+            _discountStore.CreateAsync("Campaigns", campaign);
             return true;
         }
 
         public DiscountCampaign GetDiscountCampaign(string campaignCode)
         {
-            var campaign = _dbContext.GetTaskAsync<Data.DiscountCampaign>("Campaigns", campaignCode);
+            var campaign = _discountStore.GetDiscountCampaignAsync("Campaigns", campaignCode);
             return campaign.Result;
         }
 
@@ -71,7 +71,7 @@ namespace DiscountCodeAPI.Services
             DiscountCampaign campaign = GetDiscountCampaign(campaignCode);
             Discount d = CreateDiscountFromCampaign(campaign);
             d.BeneficiaryId = beneficiaryId;
-            _dbContext.CreateAsync("DiscountCodes", d);
+            _discountStore.CreateAsync("DiscountCodes", d);
 
             // Todo: Reduce campaign items by one
 
