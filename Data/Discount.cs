@@ -35,6 +35,9 @@ namespace DiscountCodeAPI.Data
 
     public class Discount
     {
+        [BsonId]
+        [BsonRepresentation(MongoDB.Bson.BsonType.ObjectId)]
+        public string? Id { get; set; }
         public DateTime ValidFrom { get; set; }
         public DateTime ValidTo { get; set; }
         [StringLength(100)]
@@ -48,7 +51,6 @@ namespace DiscountCodeAPI.Data
     public class FixedAmountDiscount : Discount, IDiscount
     {
         public FixedAmountDiscount() { FixedAmount = 0; }
-
         [Range(0, float.MaxValue)]
         public float FixedAmount { get; set; }
         public float GetResultSum(float sum)
@@ -61,10 +63,12 @@ namespace DiscountCodeAPI.Data
             return FixedAmount;
         }
     }
+
     [BsonDiscriminator("RelativeAmountDiscount")]
     public class RelativeAmountDiscount : Discount, IDiscount
     {
         public RelativeAmountDiscount() {}
+        
         [Range(0.0, 100.0)]
         public float Factor { get; set; }
         public float GetResultSum(float sum)

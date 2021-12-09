@@ -44,6 +44,7 @@ namespace DiscountCodeAPI
             services.AddScoped<INotificationService, EmailNotificationService>();
 
             MongoDB.Bson.Serialization.BsonClassMap.RegisterClassMap<FixedAmountDiscount>();
+            MongoDB.Bson.Serialization.BsonClassMap.RegisterClassMap<RelativeAmountDiscount>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

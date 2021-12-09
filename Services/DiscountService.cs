@@ -73,6 +73,7 @@ namespace DiscountCodeAPI.Services
             d.BeneficiaryId = beneficiaryId;
             _discountStore.CreateAsync("DiscountCodes", d);
 
+            // Todo: Check that discount is not already provisioned or used
             // Todo: Reduce campaign items by one
 
             return d;
@@ -81,16 +82,16 @@ namespace DiscountCodeAPI.Services
 
         public Discount GetDiscount(string discountCode, string beneficiaryId)
         {
-            throw new NotImplementedException();
+            var discount = _discountStore.GetDiscountAsync("DiscountCodes", discountCode);
+            return discount.Result;
         }
 
         
 
         public float ApplyDiscount(string discountCode, string beneficiaryId, float sum)
         {
-            // Get Discount Object and calculate new sum
-            // Set Discount State to "Used"
-            // Return new sum
+            
+            // Todo: Set Discount State to "Used"
             Discount discount = GetDiscount(discountCode, beneficiaryId);
             float newSum = ((IDiscount)discount).GetResultSum(sum);
             return newSum;
@@ -104,7 +105,6 @@ namespace DiscountCodeAPI.Services
                 FixedAmountDiscount d = new FixedAmountDiscount()
                 {
                     FixedAmount = f.FixedAmount,
-                    //DiscountType = f.DiscountType,
                     ValidFrom = DateTime.Now,
                     ValidTo = DateTime.Now.AddDays(f.DiscountPeriod),
                     DiscountCode = _codeGenerator.GenerateCode()

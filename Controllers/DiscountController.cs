@@ -53,22 +53,13 @@ namespace DiscountCodeAPI.Controllers
             return discount;
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route("api/discount/apply")]
-        public float ApplyDiscount(float sum, string discountCode, string beneficiaryId)
+        public float ApplyDiscount([FromQuery] float sum, [FromQuery] string discountCode, [FromQuery] string beneficiaryId)
         {
-            Discount discount = _discountService.GetDiscount(discountCode,beneficiaryId);
-
-
-            float newSum = ((IDiscount) discount).GetResultSum(sum);
-            //_discountService.DisableDiscount(discount);
+            
+            float newSum = _discountService.ApplyDiscount(discountCode, beneficiaryId, sum);         
             return newSum;
-        }
-
-
-
-
-      
-        
+        }       
     }
 }
